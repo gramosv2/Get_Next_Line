@@ -6,11 +6,9 @@
 /*   By: goramos- <goramos-@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/07 18:29:35 by goramos-          #+#    #+#             */
-/*   Updated: 2025/11/07 18:36:48 by goramos-         ###   ########.fr       */
+/*   Updated: 2025/11/08 09:37:39 by goramos-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-
 
 #include "get_next_line_bonus.h"
 
@@ -22,82 +20,77 @@ char	*ft_free(char *s1, char *s2)
 		free(s2);
 	return (NULL);
 }
-char	*ft_read_file(int fd, char *s1)
+
+static char	*ft_read_file(int fd, char *storage)
 {
 	char	*buffer;
-	int		bytes_read;
+	ssize_t	bytes_read;
 
-	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (ft_strchr(storage, '\n'))
+		return (storage);
+	buffer = malloc(BUFFER_SIZE + 1);
 	if (!buffer)
-		return (NULL);
+		return (ft_free(storage, NULL));
 	bytes_read = 1;
-	while (!ft_strchr(s1, '\n') && bytes_read > 0)
+	while (!ft_strchr(storage, '\n') && bytes_read > 0)
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read == -1)
-		{
-			free(buffer);
-			free(s1);
-			return (NULL);
-		}
+		if (bytes_read < 0)
+			return (ft_free(storage, buffer));
 		buffer[bytes_read] = '\0';
-		s1 = ft_strjoin(s1, buffer);
-		if (!s1)
-			break ;
+		storage = ft_strjoin(storage, buffer);
+		if (!storage)
+			return (ft_free(NULL, buffer));
 	}
 	free(buffer);
-	return (s1);
+	return (storage);
 }
 
-char	*ft_remove_line(char *buffer)
-{
-	int		z;
-	int		s;
-	char	*new_buffer;
-
-	z = 0;
-	while (buffer[z] && buffer[z] != '\n')
-		z++;
-	if (!buffer[z])
-	{
-		free(buffer);
-		return (NULL);
-	}
-	new_buffer = malloc(sizeof(char) * (ft_strlen(buffer) - z));
-	if (!new_buffer)
-		return (NULL);
-	z++;
-	s = 0;
-	while (buffer[z])
-		new_buffer[s++] = buffer[z++];
-	new_buffer[s] = '\0';
-	free(buffer);
-	return (new_buffer);
-}
-
-char	*ft_return_line(char *buffer)
+static char	*ft_extract_line(char *buf)
 {
 	char	*line;
-	int		z;
+	size_t	i;
 
-	z = 0;
-	if (!buffer[z])
+	if (!buf || !*buf)
 		return (NULL);
-	while (buffer[z] && buffer[z] != '\n')
-		z++;
-	line = malloc(sizeof(char) * (z + 2));
+	i = 0;
+	while (buf[i] && buf[i] != '\n')
+		i++;
+	line = malloc(i + (buf[i] == '\n') + 1);
 	if (!line)
 		return (NULL);
-	z = 0;
-	while (buffer[z] && buffer[z] != '\n')
+	i = 0;
+	while (buf[i] && buf[i] != '\n')
 	{
-		line[z] = buffer[z];
-		z++;
+		line[i] = buf[i];
+		i++;
 	}
-	if (buffer[z] == '\n')
-		line[z++] = '\n';
-	line[z] = '\0';
+	if (buf[i] == '\n')
+		line[i++] = '\n';
+	line[i] = '\0';
 	return (line);
+}
+
+static char	*ft_new_buffer(char *buf)
+{
+	size_t	i;
+	char	*new_buf;
+
+	if (!buf)
+		return (NULL);
+	i = 0;
+	while (buf[i] && buf[i] != '\n')
+		i++;
+	if (!buf[i])
+		return (ft_free(buf, NULL));
+	new_buf = ft_strdup_from(buf, i + 1);
+	free(buf);
+	if (!new_buf || !*new_buf)
+	{
+		free(new_buf);
+		return (NULL);
+	}
+	return (new_buf);
 }
 
 char	*get_next_line(int fd)
@@ -107,10 +100,36 @@ char	*get_next_line(int fd)
 
 	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0)
 		return (NULL);
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
 	buffer[fd] = ft_read_file(fd, buffer[fd]);
 	if (!buffer[fd])
+	{
+		buffer[fd] = NULL;
 		return (NULL);
-	line = ft_return_line(buffer[fd]);
-	buffer[fd] = ft_remove_line(buffer[fd]);
+	}
+	line = ft_extract_line(buffer[fd]);
+	if (!line)
+	{
+		free(buffer[fd]);
+		buffer[fd] = NULL;
+		return (NULL);
+	}
+	buffer[fd] = ft_new_buffer(buffer[fd]);
 	return (line);
 }
+
+// char	*get_next_line(int fd)
+// {
+// 	static char	*buffer[MAX_FD];
+// 	char		*line;
+
+// 	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0)
+// 		return (NULL);
+// 	buffer[fd] = ft_read_file(fd, buffer[fd]);
+// 	if (!buffer[fd])
+// 		return (NULL);
+// 	line = ft_return_line(buffer[fd]);
+// 	buffer[fd] = ft_remove_line(buffer[fd]);
+// 	return (line);
+// }

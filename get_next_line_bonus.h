@@ -6,11 +6,9 @@
 /*   By: goramos- <goramos-@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/07 18:34:43 by goramos-          #+#    #+#             */
-/*   Updated: 2025/11/07 18:37:08 by goramos-         ###   ########.fr       */
+/*   Updated: 2025/11/08 09:36:27 by goramos-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-
 
 #ifndef GET_NEXT_LINE_BONUS_H
 # define GET_NEXT_LINE_BONUS_H
@@ -32,10 +30,11 @@
 char	*get_next_line(int fd);
 char	*ft_remove_line(char *buffer);
 char	*ft_return_line(char *buffer);
-char	*ft_read_file(int fd, char *resource);
 char	*ft_strjoin(char *s1, const char *s2);
 char	*ft_strchr(const char *s, int c);
 size_t	ft_strlen(const char *theline);
 void	*ft_memcpy(void *dst, const void *src, size_t n);
 char	*ft_free(char *s1, char *s2);
+char	*ft_strdup_from(const char *s, int start);
+
 #endif

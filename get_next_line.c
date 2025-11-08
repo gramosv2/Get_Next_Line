@@ -6,7 +6,7 @@
 /*   By: goramos- <goramos-@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/07 17:42:13 by goramos-          #+#    #+#             */
-/*   Updated: 2025/11/07 18:04:30 by goramos-         ###   ########.fr       */
+/*   Updated: 2025/11/08 09:27:06 by goramos-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ char	*get_next_line(int fd)
 	buffer = ft_read_file(fd, buffer);
 	if (!buffer)
 	{
-		buffer = NULL;  // ft_read_file ya liberó todo
+		buffer = NULL;
 		return (NULL);
 	}
 	line = ft_extract_line(buffer);
